@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections;
+using AutoMapper;
 using CodePulse.API.Data;
 using CodePulse.API.Models.Domain;
 using CodePulse.API.Models.Dtos;
@@ -26,6 +27,15 @@ namespace CodePulse.API.Controllers
             await _categoryRepository.CreateAsync(category);
 
             return Ok(category);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategories()
+        {
+            var categories = await _categoryRepository.GetAllAsync();
+            var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+
+            return Ok(categoryDtos);
         }
 
     }
