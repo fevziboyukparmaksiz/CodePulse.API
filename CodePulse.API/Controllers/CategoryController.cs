@@ -11,11 +11,11 @@ namespace CodePulse.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
-        public CategoryController(IMapper mapper, ICategoryRepository categoryRepository)
+        public CategoriesController(IMapper mapper, ICategoryRepository categoryRepository)
         {
             _mapper = mapper;
             _categoryRepository = categoryRepository;
@@ -38,5 +38,19 @@ namespace CodePulse.API.Controllers
             return Ok(categoryDtos);
         }
 
+        [HttpGet]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
+        {
+            var category = await _categoryRepository.GetById(id);
+
+            if (category is null)
+            {
+                return NotFound();
+            }
+
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+            return Ok(categoryDto);
+        }
     }
 }
