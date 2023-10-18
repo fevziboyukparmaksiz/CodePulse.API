@@ -29,5 +29,13 @@ namespace CodePulse.API.Controllers
 
             return Ok(blogPostDto);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllBlogPosts()
+        {
+            var blogPosts = await _blogPostRepository.GetAllAsync();
+
+            return Ok(_mapper.Map<IEnumerable<BlogPostDto>>(blogPosts));
+        }
     }
 }
