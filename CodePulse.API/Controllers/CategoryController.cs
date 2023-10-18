@@ -85,7 +85,6 @@ namespace CodePulse.API.Controllers
             }
 
             return NoContent();
-
         }
     }
 }
