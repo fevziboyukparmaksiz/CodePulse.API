@@ -10,6 +10,7 @@ namespace CodePulse.API.Mapping
         {
             CreateMap<Category, CreateCategoryRequestDto>().ReverseMap();
             CreateMap<Category, CategoryDto>().ReverseMap();
+
         }
     }
 }
