@@ -56,7 +56,6 @@ namespace CodePulse.API.Controllers
 
         [HttpPut]
         [Route("{id:guid}")]
-
         public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, UpdateCategoryRequestDto updateCategoryRequestDto)
         {
             var category = new Category()
@@ -73,6 +72,20 @@ namespace CodePulse.API.Controllers
             }
 
             return Ok(_mapper.Map<CategoryDto>(category));
+        }
+
+        [HttpDelete]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+        {
+            var category = await _categoryRepository.DeleteAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+
         }
     }
 }
