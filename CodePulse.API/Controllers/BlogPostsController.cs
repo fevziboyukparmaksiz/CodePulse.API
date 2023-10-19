@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using CodePulse.API.Models.Domain;
+﻿using CodePulse.API.Models.Domain;
 using CodePulse.API.Models.Dtos;
 using CodePulse.API.Repositories.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodePulse.API.Controllers
@@ -12,22 +10,62 @@ namespace CodePulse.API.Controllers
     public class BlogPostsController : ControllerBase
     {
         private readonly IBlogPostRepository _blogPostRepository;
-        private readonly IMapper _mapper;
-        public BlogPostsController(IMapper mapper, IBlogPostRepository blogPostRepository)
+        private readonly ICategoryRepository _categoryRepository;
+
+        public BlogPostsController(IBlogPostRepository blogPostRepository, ICategoryRepository categoryRepository)
         {
-            _mapper = mapper;
             _blogPostRepository = blogPostRepository;
+            _categoryRepository = categoryRepository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBlogPost(CreateBlogPostRequestDto request)
+        public async Task<IActionResult> CreateBlogPost([FromBody] CreateBlogPostRequestDto request)
         {
-            var blogPost = _mapper.Map<BlogPost>(request);
-            await _blogPostRepository.CreateAsync(blogPost);
+            var blogPost = new BlogPost
+            {
+                Author = request.Author,
+                Content = request.Content,
+                FeaturedImageUrl = request.FeaturedImageUrl,
+                IsVisible = request.IsVisible,
+                PublishedDate = request.PublishedDate,
+                ShortDescription = request.ShortDescription,
+                Title = request.Title,
+                UrlHandle = request.UrlHandle,
+                Categories = new List<Category>()
+            };
 
-            var blogPostDto = _mapper.Map<BlogPostDto>(blogPost);
+            foreach (var categoryGuid in request.Categories)
+            {
+                var existingCategory = await _categoryRepository.GetById(categoryGuid);
+                if (existingCategory is not null)
+                {
+                    blogPost.Categories.Add(existingCategory);
+                }
+            }
 
-            return Ok(blogPostDto);
+            blogPost = await _blogPostRepository.CreateAsync(blogPost);
+
+            var response = new BlogPostDto
+            {
+                Id = blogPost.Id,
+                Author = blogPost.Author,
+                Content = blogPost.Content,
+                FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                IsVisible = blogPost.IsVisible,
+                PublishedDate = blogPost.PublishedDate,
+                ShortDescription = blogPost.ShortDescription,
+                Title = blogPost.Title,
+                UrlHandle = blogPost.UrlHandle,
+                Categories = blogPost.Categories.Select(x => new CategoryDto()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle
+                }).ToList()
+
+            };
+
+            return Ok(response);
         }
 
         [HttpGet]
@@ -35,7 +73,24 @@ namespace CodePulse.API.Controllers
         {
             var blogPosts = await _blogPostRepository.GetAllAsync();
 
-            return Ok(_mapper.Map<IEnumerable<BlogPostDto>>(blogPosts));
+            var response = new List<BlogPostDto>();
+            foreach (var blogPost in blogPosts)
+            {
+                response.Add(new BlogPostDto
+                {
+                    Id = blogPost.Id,
+                    Author = blogPost.Author,
+                    Content = blogPost.Content,
+                    FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                    IsVisible = blogPost.IsVisible,
+                    PublishedDate = blogPost.PublishedDate,
+                    ShortDescription = blogPost.ShortDescription,
+                    Title = blogPost.Title,
+                    UrlHandle = blogPost.UrlHandle
+                });
+            }
+
+            return Ok(response);
         }
     }
 }
