@@ -209,13 +209,7 @@ namespace CodePulse.API.Controllers
                 PublishedDate = deletedBlogPost.PublishedDate,
                 ShortDescription = deletedBlogPost.ShortDescription,
                 Title = deletedBlogPost.Title,
-                UrlHandle = deletedBlogPost.UrlHandle,
-                Categories = deletedBlogPost.Categories.Select(x => new CategoryDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    UrlHandle = x.UrlHandle
-                }).ToList()
+                UrlHandle = deletedBlogPost.UrlHandle
             };
 
             return Ok(response);
