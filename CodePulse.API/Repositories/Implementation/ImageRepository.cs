@@ -28,7 +28,7 @@ namespace CodePulse.API.Repositories.Implementation
             //https://codepulse.com/images/somefilename.jpg
             var request = _httpContextAccessor.HttpContext.Request;
             var urlPath =
-                $"{request.Scheme}://{request.Host}/{request.PathBase}/Images/{blogImage.FileName}{blogImage.FileExtension}";
+                $"{request.Scheme}://{request.Host}/Images/{blogImage.FileName}{blogImage.FileExtension}";
 
             blogImage.Url = urlPath;
 
