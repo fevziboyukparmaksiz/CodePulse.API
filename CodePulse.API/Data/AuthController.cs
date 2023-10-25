@@ -1,4 +1,5 @@
 ﻿using CodePulse.API.Models.Dtos;
+using CodePulse.API.Repositories.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,11 @@ namespace CodePulse.API.Data
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-
-        public AuthController(UserManager<IdentityUser> userManager)
+        private readonly ITokenRepository _tokenRepository;
+        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
         {
             _userManager = userManager;
+            _tokenRepository = tokenRepository;
         }
 
         [HttpPost]
@@ -27,12 +29,14 @@ namespace CodePulse.API.Data
                 if (checkPasswordResult)
                 {
                     var roles = await _userManager.GetRolesAsync(identityUser);
-                    //create a token and response
+
+                    var jwtToken = _tokenRepository.CreateJwtToken(identityUser, roles.ToList());
+
                     var response = new LoginResponseDto()
                     {
                         Email = request.Email,
                         Roles = roles.ToList(),
-                        Token = "TOKEN"
+                        Token = jwtToken
                     };
 
                     return Ok(response);
